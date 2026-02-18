@@ -7,6 +7,15 @@ from network import STA_IF, WLAN
 
 import bmp280
 
+sleep(5)
+
+SDA_PIN = 4
+SCL_PIN = 5
+SENSOR_ADDR = 0x77
+
+SSID = "vpn-wifi"
+PASSWORD = "kuk2Zumba!"
+
 URL = "http://pressure.pyah.online:8080/api/measure"
 
 # Выключаем пины
@@ -16,10 +25,10 @@ Pin(13, Pin.OUT).off()
 # Подключение к Wi-Fi
 wlan = WLAN(STA_IF)
 wlan.active(True)
-wlan.connect("RT-GPON-A88C", "7EfRqRKk")
+wlan.connect(SSID, PASSWORD)
 
 # Ждем подключения
-max_wait = 10
+max_wait = 30
 while max_wait > 0:
     if wlan.isconnected():
         print("WiFi connected!")
@@ -34,14 +43,14 @@ if not wlan.isconnected():
 
 print("Network config:", wlan.ifconfig())
 
-i2c = I2C(scl=Pin(5), sda=Pin(4), freq=10000)
-bmp = bmp280.BMP280(i2c, 0x77)
+i2c = I2C(scl=Pin(SCL_PIN), sda=Pin(SDA_PIN), freq=10000)
+bmp = bmp280.BMP280(i2c, SENSOR_ADDR)
 
 while True:
     try:
         data = {
             "sensorID": 1,
-            "measureTypeID": 2,
+            "measureTypeID": 1,
             "unitID": 2,
             "value": round(bmp.pressure * 0.00750062),
         }
